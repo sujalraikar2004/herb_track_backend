@@ -40,7 +40,7 @@ const vehicleSchema = new mongoose.Schema(
         },
         rcBookImage: {
             type: String,
-            required: true,
+            required: false,
         },
     },
     { _id: false }
