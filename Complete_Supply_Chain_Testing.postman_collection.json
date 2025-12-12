@@ -1,0 +1,934 @@
+{
+    "info": {
+        "name": "Complete Supply Chain Testing - Step by Step",
+        "description": "Complete testing flow: Farmer → Supplier → Industry → Consumer with QR scanning and payments",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "PHASE 1 - FARMER",
+            "item": [
+                {
+                    "name": "1. Register Farmer",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('farmerId', response.data.userId);",
+                                    "    console.log('✅ Farmer registered! ID:', response.data.userId);",
+                                    "    console.log('📱 Check console for OTP');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"role\": \"farmer\",\n  \"name\": \"Ramesh Kumar\",\n  \"phone\": \"{{test_phone}}\",\n  \"dateOfBirth\": \"1985-05-15\",\n  \"aadharNumber\": \"123456789001\",\n  \"address\": {\n    \"village\": \"Kothapalli\",\n    \"taluk\": \"Somwarpet\",\n    \"district\": \"Kodagu\",\n    \"state\": \"Karnataka\",\n    \"pincode\": \"571236\"\n  },\n  \"farmSize\": 5.5,\n  \"cropsGrown\": [\"Ashwagandha\", \"Tulsi\", \"Neem\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "2. Verify Farmer OTP",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('farmerToken', response.data.accessToken);",
+                                    "    console.log('✅ Farmer verified! Token saved');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"{{test_phone}}\",\n  \"otp\": \"123456\",\n  \"role\": \"farmer\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/verify-registration",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "verify-registration"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "3. Farmer Creates Batch",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('batchId', response.data.batch._id);",
+                                    "    console.log('✅ Batch created! ID:', response.data.batch._id);",
+                                    "    console.log('📦 Batch Number:', response.data.batch.batchId);",
+                                    "    console.log('📱 QR Code generated!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{farmerToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"farmerId\": \"{{farmerId}}\",\n  \"herbName\": \"Ashwagandha\",\n  \"scientificName\": \"Withania somnifera\",\n  \"category\": \"root\",\n  \"harvestDate\": \"2025-12-10\",\n  \"quantity\": {\n    \"value\": 100,\n    \"unit\": \"kg\"\n  },\n  \"gpsCoordinates\": {\n    \"latitude\": 12.9716,\n    \"longitude\": 77.5946,\n    \"accuracy\": 10\n  },\n  \"location\": {\n    \"village\": \"Kothapalli\",\n    \"taluk\": \"Somwarpet\",\n    \"district\": \"Kodagu\",\n    \"state\": \"Karnataka\"\n  },\n  \"qualityMetrics\": {\n    \"moisture\": 10.5,\n    \"purity\": 98,\n    \"color\": \"Brown\",\n    \"aroma\": \"Strong\",\n    \"grade\": \"A+\",\n    \"organicCertified\": true\n  },\n  \"description\": \"Fresh organic Ashwagandha roots\",\n  \"farmerPrice\": {\n    \"amount\": 5000,\n    \"currency\": \"INR\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/create",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "supply-chain",
+                                "batches",
+                                "create"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "PHASE 2 - SUPPLIER",
+            "item": [
+                {
+                    "name": "4. Register Supplier",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('supplierId', response.data.userId);",
+                                    "    console.log('✅ Supplier registered! ID:', response.data.userId);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"role\": \"supplier\",\n  \"name\": \"Suresh Patil\",\n  \"phone\": \"{{test_phone}}\",\n  \"dateOfBirth\": \"1990-08-20\",\n  \"aadharNumber\": \"123456789002\",\n  \"drivingLicense\": {\n    \"licenseNumber\": \"KA0120210012345\",\n    \"expiryDate\": \"2030-08-20\"\n  },\n  \"vehicles\": [\n    {\n      \"vehicleNumber\": \"KA01AB1234\",\n      \"vehicleType\": \"truck\"\n    }\n  ],\n  \"address\": {\n    \"street\": \"MG Road\",\n    \"city\": \"Bangalore\",\n    \"district\": \"Bangalore Urban\",\n    \"state\": \"Karnataka\",\n    \"pincode\": \"560001\"\n  },\n  \"businessName\": \"Patil Transport Services\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "5. Verify Supplier OTP",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('supplierToken', response.data.accessToken);",
+                                    "    console.log('✅ Supplier verified!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"{{test_phone}}\",\n  \"otp\": \"123456\",\n  \"role\": \"supplier\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/verify-registration",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "verify-registration"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "6. Supplier Scans Batch QR",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    console.log('✅ Batch scanned!');",
+                                    "    console.log('👨‍🌾 Farmer:', response.data.batch.currentOwnerDetails.name);",
+                                    "    console.log('💰 Price:', response.data.batch.farmerPrice.amount);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/scan/{{batchId}}?scannedBy={{supplierId}}&scannerType=Supplier",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "supply-chain",
+                                "batches",
+                                "scan",
+                                "{{batchId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "scannedBy",
+                                    "value": "{{supplierId}}"
+                                },
+                                {
+                                    "key": "scannerType",
+                                    "value": "Supplier"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "7. Supplier Creates Payment",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('paymentId', response.data.payment.paymentId);",
+                                    "    console.log('✅ Payment order created!');",
+                                    "    console.log('💳 Payment ID:', response.data.payment.paymentId);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{supplierToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"batchId\": \"{{batchId}}\",\n  \"payerId\": \"{{supplierId}}\",\n  \"payerType\": \"Supplier\",\n  \"amount\": 5000,\n  \"paymentMode\": \"Razorpay\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/create-order",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "create-order"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "8. Complete Cash Payment (Supplier)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    console.log('✅ Payment completed!');",
+                                    "    console.log('🔄 Ownership transferred to Supplier');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"receivedBy\": \"Ramesh Kumar\",\n  \"receiptNumber\": \"RCPT-001\",\n  \"witnessName\": \"Witness Name\",\n  \"witnessPhone\": \"9876543212\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/cash-payment",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "cash-payment"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "PHASE 3 - INDUSTRY",
+            "item": [
+                {
+                    "name": "9. Register Industry",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('industryId', response.data.userId);",
+                                    "    console.log('✅ Industry registered! ID:', response.data.userId);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"role\": \"industry\",\n  \"industryName\": \"Himalaya Wellness Company\",\n  \"industryType\": \"ayurvedic\",\n  \"yearEstablished\": 1930,\n  \"phone\": \"{{test_phone}}\",\n  \"email\": \"contact@himalaya.test\",\n  \"website\": \"https://himalayawellness.com\",\n  \"authorizedPerson\": {\n    \"name\": \"Dr. Mehra\",\n    \"designation\": \"Managing Director\",\n    \"phone\": \"9876543213\",\n    \"email\": \"mehra@himalaya.test\",\n    \"aadharNumber\": \"123456789003\"\n  },\n  \"gstNumber\": \"29ABCDE1234F1Z5\",\n  \"panNumber\": \"ABCDE1234F\",\n  \"tradeLicense\": {\n    \"licenseNumber\": \"TL/2020/12345\",\n    \"issueDate\": \"2020-01-15\",\n    \"expiryDate\": \"2030-01-15\"\n  },\n  \"fssaiLicense\": {\n    \"licenseNumber\": \"12345678901234\",\n    \"expiryDate\": \"2030-01-15\"\n  },\n  \"address\": {\n    \"buildingName\": \"Himalaya House\",\n    \"street\": \"Tumkur Road\",\n    \"city\": \"Bangalore\",\n    \"district\": \"Bangalore Urban\",\n    \"state\": \"Karnataka\",\n    \"pincode\": \"560022\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "10. Verify Industry OTP",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('industryToken', response.data.accessToken);",
+                                    "    console.log('✅ Industry verified!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"{{test_phone}}\",\n  \"otp\": \"123456\",\n  \"role\": \"industry\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/verify-registration",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "verify-registration"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "11. Industry Scans Batch QR",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    console.log('✅ Batch scanned by Industry!');",
+                                    "    console.log('📜 Chain events:', response.data.totalEvents);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/scan/{{batchId}}?scannedBy={{industryId}}&scannerType=Industry",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "supply-chain",
+                                "batches",
+                                "scan",
+                                "{{batchId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "scannedBy",
+                                    "value": "{{industryId}}"
+                                },
+                                {
+                                    "key": "scannerType",
+                                    "value": "Industry"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "12. Industry Creates Payment",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('paymentId2', response.data.payment.paymentId);",
+                                    "    console.log('✅ Industry payment created!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{industryToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"batchId\": \"{{batchId}}\",\n  \"payerId\": \"{{industryId}}\",\n  \"payerType\": \"Industry\",\n  \"amount\": 7000,\n  \"paymentMode\": \"Razorpay\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/create-order",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "create-order"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "13. Complete Cash Payment (Industry)",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    console.log('✅ Industry payment completed!');",
+                                    "    console.log('🔄 Ownership transferred to Industry');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"paymentId\": \"{{paymentId2}}\",\n  \"receivedBy\": \"Suresh Patil\",\n  \"receiptNumber\": \"RCPT-002\",\n  \"witnessName\": \"Witness Name 2\",\n  \"witnessPhone\": \"9876543213\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/cash-payment",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "cash-payment"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "14. Industry Creates Final Product",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('productId', response.data.finalProduct._id);",
+                                    "    console.log('✅ Final Product created!');",
+                                    "    console.log('📦 Product ID:', response.data.finalProduct.productId);",
+                                    "    console.log('📱 New QR Code generated!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{industryToken}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"industryId\": \"{{industryId}}\",\n  \"sourceBatches\": [\"{{batchId}}\"],\n  \"productName\": \"Ashwagandha Capsules\",\n  \"brandName\": \"Himalaya\",\n  \"productType\": \"capsule\",\n  \"category\": \"ayurvedic\",\n  \"ingredients\": [\n    {\n      \"batchId\": \"{{batchId}}\",\n      \"herbName\": \"Ashwagandha\",\n      \"quantity\": { \"value\": 500, \"unit\": \"mg\" },\n      \"percentage\": 100\n    }\n  ],\n  \"formulationDetails\": \"Pure Ashwagandha root extract\",\n  \"packaging\": {\n    \"type\": \"bottle\",\n    \"material\": \"HDPE\",\n    \"quantity\": { \"value\": 60, \"unit\": \"capsules\" },\n    \"batchSize\": 1000\n  },\n  \"manufacturingDate\": \"2025-12-11\",\n  \"expiryDate\": \"2027-12-11\",\n  \"labTests\": [\n    {\n      \"testName\": \"Heavy Metal Test\",\n      \"labName\": \"SGS Labs\",\n      \"testDate\": \"2025-12-10\",\n      \"result\": \"Pass\",\n      \"status\": \"pass\"\n    }\n  ],\n  \"certifications\": [\n    {\n      \"name\": \"GMP Certified\",\n      \"certificateNumber\": \"GMP-2025-001\",\n      \"issuedBy\": \"WHO\",\n      \"issuedDate\": \"2025-01-01\"\n    }\n  ],\n  \"fssaiLicense\": \"12345678901234\",\n  \"mrp\": { \"amount\": 499, \"currency\": \"INR\" },\n  \"dosage\": \"1-2 capsules daily\",\n  \"usageInstructions\": \"Take with warm water after meals\",\n  \"warnings\": [\"Consult doctor if pregnant\"],\n  \"benefits\": [\"Reduces stress\", \"Improves immunity\"],\n  \"barcode\": \"8901234567890\",\n  \"sku\": \"HIM-ASH-60\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/final-products/create",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "final-products",
+                                "create"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "PHASE 4 - CONSUMER",
+            "item": [
+                {
+                    "name": "15. Register Consumer",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('consumerId', response.data.userId);",
+                                    "    console.log('✅ Consumer registered!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"role\": \"consumer\",\n  \"phone\": \"{{test_phone}}\",\n  \"name\": \"Priya Sharma\",\n  \"email\": \"priya@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "16. Verify Consumer OTP",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('consumerToken', response.data.accessToken);",
+                                    "    console.log('✅ Consumer verified!');",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"{{test_phone}}\",\n  \"otp\": \"123456\",\n  \"role\": \"consumer\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/verify-registration",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "verify-registration"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "17. Consumer Scans Final Product QR 🎉",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    console.log('🎉 SUCCESS! Complete journey visible!');",
+                                    "    console.log('👨‍🌾 Farmers:', response.data.journey.farmers.length);",
+                                    "    console.log('🚚 Suppliers:', response.data.journey.suppliers.length);",
+                                    "    console.log('🏭 Industry:', response.data.journey.industry.name);",
+                                    "    console.log('📊 Total Scans:', response.data.totalScans);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/final-products/scan/{{productId}}?scannedBy={{consumerId}}&scannerType=Consumer",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "final-products",
+                                "scan",
+                                "{{productId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "scannedBy",
+                                    "value": "{{consumerId}}"
+                                },
+                                {
+                                    "key": "scannerType",
+                                    "value": "Consumer"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "ADDITIONAL TESTS",
+            "item": [
+                {
+                    "name": "Get Farmer Batches",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/farmer/{{farmerId}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "supply-chain",
+                                "batches",
+                                "farmer",
+                                "{{farmerId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Payments",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/payments/user/{{supplierId}}?type=all",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "payments",
+                                "user",
+                                "{{supplierId}}"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "all"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Search Batches",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/search?herbName=Ashwagandha&state=Karnataka",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "supply-chain",
+                                "batches",
+                                "search"
+                            ],
+                            "query": [
+                                {
+                                    "key": "herbName",
+                                    "value": "Ashwagandha"
+                                },
+                                {
+                                    "key": "state",
+                                    "value": "Karnataka"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Industry Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/final-products/industry/{{industryId}}",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "final-products",
+                                "industry",
+                                "{{industryId}}"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Resend OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"{{test_phone}}\",\n  \"role\": \"farmer\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/resend-otp",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "auth",
+                                "resend-otp"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000/api/v1",
+            "type": "string"
+        },
+        {
+            "key": "test_phone",
+            "value": "9999999999",
+            "type": "string"
+        },
+        {
+            "key": "farmerId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "farmerToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "supplierId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "supplierToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "industryId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "industryToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "consumerId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "consumerToken",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "batchId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "paymentId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "paymentId2",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "productId",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}

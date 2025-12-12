@@ -1,0 +1,331 @@
+{
+    "info": {
+        "name": "Herbal Supply Chain API",
+        "description": "Complete API collection for herbal supply chain traceability system",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register Consumer",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"role\": \"consumer\",\n  \"phone\": \"9876543210\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/register"
+                        }
+                    }
+                },
+                {
+                    "name": "Verify Registration OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\",\n  \"role\": \"consumer\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/verify-registration"
+                        }
+                    }
+                },
+                {
+                    "name": "Login - Request OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"9876543210\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/login"
+                        }
+                    }
+                },
+                {
+                    "name": "Login - Verify OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/verify-login"
+                        }
+                    }
+                },
+                {
+                    "name": "Resend OTP",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"phone\": \"9876543210\",\n  \"role\": \"consumer\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/auth/resend-otp"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Supply Chain",
+            "item": [
+                {
+                    "name": "Create Batch (Farmer)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"farmerId\": \"{{farmerId}}\",\n  \"herbName\": \"Ashwagandha\",\n  \"harvestDate\": \"2025-12-10\",\n  \"quantity\": {\n    \"value\": 100,\n    \"unit\": \"kg\"\n  },\n  \"gpsCoordinates\": {\n    \"latitude\": 12.9716,\n    \"longitude\": 77.5946\n  },\n  \"location\": {\n    \"village\": \"Kothapalli\",\n    \"district\": \"Kodagu\",\n    \"state\": \"Karnataka\"\n  },\n  \"farmerPrice\": {\n    \"amount\": 5000\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/create"
+                        }
+                    }
+                },
+                {
+                    "name": "Scan Batch QR",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/scan/{{batchId}}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Farmer Batches",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/farmer/{{farmerId}}"
+                        }
+                    }
+                },
+                {
+                    "name": "Search Batches",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/supply-chain/batches/search?herbName=Ashwagandha"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Payments",
+            "item": [
+                {
+                    "name": "Create Payment Order",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"batchId\": \"{{batchId}}\",\n  \"payerId\": \"{{supplierId}}\",\n  \"payerType\": \"Supplier\",\n  \"amount\": 5000,\n  \"paymentMode\": \"Razorpay\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/create-order"
+                        }
+                    }
+                },
+                {
+                    "name": "Verify Razorpay Payment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"razorpayOrderId\": \"order_xxx\",\n  \"razorpayPaymentId\": \"pay_xxx\",\n  \"razorpaySignature\": \"signature_xxx\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/verify"
+                        }
+                    }
+                },
+                {
+                    "name": "Complete Cash Payment",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"paymentId\": \"{{paymentId}}\",\n  \"receivedBy\": \"Ramesh Kumar\",\n  \"receiptNumber\": \"RCPT-001\",\n  \"witnessName\": \"Witness Name\",\n  \"witnessPhone\": \"9876543212\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/payments/cash-payment"
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Payments",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/payments/user/{{userId}}?type=all"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Final Products",
+            "item": [
+                {
+                    "name": "Create Final Product",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"industryId\": \"{{industryId}}\",\n  \"sourceBatches\": [\"{{batchId}}\"],\n  \"productName\": \"Ashwagandha Capsules\",\n  \"brandName\": \"Himalaya\",\n  \"productType\": \"capsule\",\n  \"category\": \"ayurvedic\",\n  \"manufacturingDate\": \"2025-12-11\",\n  \"expiryDate\": \"2027-12-11\",\n  \"mrp\": {\n    \"amount\": 499\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/final-products/create"
+                        }
+                    }
+                },
+                {
+                    "name": "Scan Final Product QR",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/final-products/scan/{{productId}}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Industry Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/final-products/industry/{{industryId}}"
+                        }
+                    }
+                },
+                {
+                    "name": "Search Products",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/final-products/search?productName=Ashwagandha"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000/api/v1",
+            "type": "string"
+        },
+        {
+            "key": "farmerId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "supplierId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "industryId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "batchId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "paymentId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "productId",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "userId",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
